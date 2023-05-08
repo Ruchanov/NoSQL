@@ -1,45 +1,64 @@
-import json
-import os
+import service
 
-def create_table(name, columns):
-    data = {"columns": columns, "rows": []}
-    with open("database/" + name + ".json", "w") as f:
-        json.dump(data, f)
+while True:
+    print("Select an option:")
+    print("1. Create table")
+    print("2. Delete table")
+    print("3. Read table")
+    print("4. Add row")
+    print("5. Delete row")
+    print("6. Update row")
+    print("7. Exit")
+    choice = input()
 
-def delete_table(name):
-    os.remove("database/" + name + ".json")
+    if choice == "1":
+        name = input("Enter table name: ")
+        columns = input("Enter columns (comma-separated): ").split(",")
+        service.create_table(name, columns)
+        print("Table created successfully.")
 
-def add_row(name, row):
-    with open("database/" + name + ".json", "r") as f:
-        data = json.load(f)
-    data["rows"].append(row)
-    with open("database/" + name + ".json", "w") as f:
-        json.dump(data, f)
+    elif choice == "2":
+        name = input("Enter table name: ")
+        service.delete_table(name)
+        print("Table deleted successfully.")
 
-def delete_row(name, id):
-    with open("database/" + name + ".json", "r") as f:
-        data = json.load(f)
-    new_rows = []
-    for row in data["rows"]:
-        if row.get("id") != id:
-            new_rows.append(row)
-    data["rows"] = new_rows
-    with open("database/" + name + ".json", "w") as f:
-        json.dump(data, f)
+    elif choice == "3":
+        name = input("Enter table name: ")
+        columns = input("Enter columns (comma-separated, leave blank for all): ")
+        columns = [c.strip() for c in columns.split(",")] if columns else None
+        rows = service.read_table(name, columns=columns)
+        print("Table contents:")
+        for row in rows:
+            print(row)
+        
+    elif choice == "4":
+        name = input("Enter table name: ")
+        row = {}
+        for col in columns:
+            value = input(f"Enter value for {col}: ")
+            row[col] = value
+        service.add_row(name, row)
+        print("Row added successfully.")
 
-# Функция обновления строки в таблице по id
-def update_row(name, id, new_data):
-    with open("database/" + name + ".json", "r") as f:
-        data = json.load(f)
-    for row in data["rows"]:
-        if row.get("id") == id:
-            row.update(new_data)
-    with open("database/" + name + ".json", "w") as f:
-        json.dump(data, f)
+    elif choice == "5":
+        name = input("Enter table name: ")
+        id = input("Enter row ID: ")
+        service.delete_row(name, id)
+        print("Row deleted successfully.")
 
-# Пример использования
-create_table("users", ["id", "name", "age", "email"])
-add_row("users", {"id": 1, "name": "John", "age": 30, "email": "john@example.com"})
-add_row("users", {"id": 2, "name": "Jane", "age": 25, "email": "jane@example.com"})
-delete_row("users", 1)
-update_row("users", 2, {"age": 26})
+    elif choice == "6":
+        name = input("Enter table name: ")
+        id = input("Enter row ID: ")
+        new_data = {}
+        for col in columns:
+            value = input(f"Enter new value for {col}: ")
+            new_data[col] = value
+        service.update_row(name, id, new_data)
+        print("Row updated successfully.")
+
+    elif choice == "7":
+        print("Goodbye!")
+        break
+
+    else:
+        print("Invalid choice. Please try again.")
