@@ -26,7 +26,11 @@ while True:
         name = input("Enter table name: ")
         columns = input("Enter columns (comma-separated, leave blank for all): ")
         columns = [c.strip() for c in columns.split(",")] if columns else None
-        rows = service.read_table(name, columns=columns)
+        filter_by = input("Enter filter criteria (column=value pairs, comma-separated, leave blank for no filter): ")
+        filter_by = dict([pair.strip().split("=") for pair in filter_by.split(",")]) if filter_by else None
+        sort_by = input("Enter sort column (leave blank for no sort): ")
+        sort_order = input("Enter sort order (asc/desc, default is asc): ") or "asc"
+        rows = service.read_table(name, columns=columns, filter_by=filter_by, sort_by=sort_by, sort_order=sort_order)
         print("Table contents:")
         for row in rows:
             print(row)

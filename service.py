@@ -41,17 +41,18 @@ def update_row(name, id, new_data):
         json.dump(data, f)
 
 
-def read_table(name, columns=None):
+def read_table(name, columns=None, filter_by=None, sort_by=None, sort_order="asc"):
     with open("database/" + name + ".json", "r") as f:
         data = json.load(f)
+    rows = data["rows"]
+    if filter_by is not None:
+        rows = [row for row in rows if all(val in row.values() for val in filter_by.values())]
+    if sort_by is not None:
+        reverse = sort_order.lower() == "desc"
+        rows = sorted(rows, key=lambda row: row.get(sort_by), reverse=reverse)
     if columns is None:
-        return data["rows"]
-    else:
-        rows = []
-        for row in data["rows"]:
-            new_row = {}
-            for column in columns:
-                if column in row:
-                    new_row[column] = row[column]
-            rows.append(new_row)
         return rows
+    else:
+        rows = [{col: row[col] for col in columns if col in row} for row in rows]
+        return rows
+
